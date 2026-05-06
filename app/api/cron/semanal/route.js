@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { getSupabaseAdmin } from '@/lib/supabase-server'
+import { createServiceClient } from '@/lib/supabase-server'
 
 const anthropic = new Anthropic()
 
@@ -10,7 +10,7 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = getSupabaseAdmin()
+  const supabase = createServiceClient()
 
   const { data: usuarios } = await supabase
     .from('usuarios')

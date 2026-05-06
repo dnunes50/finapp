@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { getSupabaseAdmin } from '@/lib/supabase-server'
+import { createServiceClient } from '@/lib/supabase-server'
 
 const anthropic = new Anthropic()
 
@@ -31,7 +31,7 @@ export async function POST(request) {
   const from = message.from
   const text = message.text.body
 
-  const supabase = getSupabaseAdmin()
+  const supabase = createServiceClient ()
 
   const { data: usuario } = await supabase
     .from('usuarios')
