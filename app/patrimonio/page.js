@@ -34,8 +34,8 @@ export default function Patrimonio() {
     <AppLayout>
       <div style={{ padding:'24px', maxWidth:'900px' }}>
         <div style={{ marginBottom:'20px' }}>
-          <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#1A1A18' }}>Patrimônio</h1>
-          <p style={{ fontSize:'13px', color:'#888' }}>Visão consolidada de todas as contas</p>
+          <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#F1F5F9' }}>Patrimônio</h1>
+          <p style={{ fontSize:'13px', color:'#64748B' }}>Visão consolidada de todas as contas</p>
         </div>
 
         {/* Total */}
@@ -46,22 +46,22 @@ export default function Patrimonio() {
         </div>
 
         {/* Distribuição */}
-        <div style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'16px', marginBottom:'14px' }}>
-          <div style={{ fontSize:'12px', fontWeight:'500', color:'#666', marginBottom:'12px' }}>Distribuição por conta</div>
-          {loading ? <p style={{ color:'#AAA', fontSize:'12px' }}>Carregando...</p> :
-            contas.length === 0 ? <p style={{ color:'#AAA', fontSize:'12px', textAlign:'center', padding:'20px 0' }}>Nenhuma conta cadastrada</p> :
+        <div style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'16px', marginBottom:'14px' }}>
+          <div style={{ fontSize:'12px', fontWeight:'500', color:'#94A3B8', marginBottom:'12px' }}>Distribuição por conta</div>
+          {loading ? <p style={{ color:'#475569', fontSize:'12px' }}>Carregando...</p> :
+            contas.length === 0 ? <p style={{ color:'#475569', fontSize:'12px', textAlign:'center', padding:'20px 0' }}>Nenhuma conta cadastrada</p> :
             contas.map(c => {
               const pct = (Number(c.saldo_atual)/total*100).toFixed(1)
               const barPct = (Number(c.saldo_atual)/maxSaldo*100)
               return (
-                <div key={c.conta_id} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'8px 0', borderBottom:'1px solid #F0F0EE' }}>
+                <div key={c.conta_id} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
                   <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:c.cor||'#888', flexShrink:0 }}></div>
-                  <div style={{ width:'100px', fontSize:'12px', color:'#333', flexShrink:0 }}>{c.nome}</div>
-                  <div style={{ flex:1, height:'5px', background:'#F0F0EE', borderRadius:'3px', overflow:'hidden' }}>
-                    <div style={{ height:'100%', width:`${barPct}%`, background:c.cor||'#1D9E75', borderRadius:'3px' }}></div>
+                  <div style={{ width:'100px', fontSize:'12px', color:'#E2E8F0', flexShrink:0 }}>{c.nome}</div>
+                  <div style={{ flex:1, height:'5px', background:'rgba(255,255,255,0.06)', borderRadius:'3px', overflow:'hidden' }}>
+                    <div style={{ height:'100%', width:`${barPct}%`, background:c.cor||'#22C55E', borderRadius:'3px' }}></div>
                   </div>
-                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#1A1A18', width:'110px', textAlign:'right' }}>R$ {fmt(c.saldo_atual)}</div>
-                  <div style={{ fontSize:'11px', color:'#AAA', width:'38px', textAlign:'right' }}>{pct}%</div>
+                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#F1F5F9', width:'110px', textAlign:'right' }}>R$ {fmt(c.saldo_atual)}</div>
+                  <div style={{ fontSize:'11px', color:'#475569', width:'38px', textAlign:'right' }}>{pct}%</div>
                 </div>
               )
             })
@@ -70,20 +70,20 @@ export default function Patrimonio() {
 
         {/* Evolução */}
         {historico.length > 0 && (
-          <div style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'16px' }}>
-            <div style={{ fontSize:'12px', fontWeight:'500', color:'#666', marginBottom:'12px' }}>Evolução mensal</div>
+          <div style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'16px' }}>
+            <div style={{ fontSize:'12px', fontWeight:'500', color:'#94A3B8', marginBottom:'12px' }}>Evolução mensal</div>
             {historico.map((h,i) => {
               const ant = historico[i-1]
               const delta = ant ? Number(h.resultado||0) : null
               return (
                 <div key={h.mes} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'8px 0', borderBottom: i<historico.length-1?'1px solid #F0F0EE':'none' }}>
-                  <div style={{ width:'40px', fontSize:'11px', color:'#888', flexShrink:0 }}>{h.mes}</div>
-                  <div style={{ flex:1, fontSize:'11px', color:'#AAA' }}>
-                    <span style={{ color:'#0F6E56' }}>+R$ {fmt(h.total_receitas)}</span>
+                  <div style={{ width:'40px', fontSize:'11px', color:'#64748B', flexShrink:0 }}>{h.mes}</div>
+                  <div style={{ flex:1, fontSize:'11px', color:'#475569' }}>
+                    <span style={{ color:'#22C55E' }}>+R$ {fmt(h.total_receitas)}</span>
                     {' · '}
-                    <span style={{ color:'#A32D2D' }}>-R$ {fmt(h.total_despesas)}</span>
+                    <span style={{ color:'#EF4444' }}>-R$ {fmt(h.total_despesas)}</span>
                   </div>
-                  <div style={{ fontSize:'13px', fontWeight:'500', color: Number(h.resultado)>=0?'#0F6E56':'#A32D2D' }}>
+                  <div style={{ fontSize:'13px', fontWeight:'500', color: Number(h.resultado)>=0?'#22C55E':'#EF4444' }}>
                     {Number(h.resultado)>=0?'+':''}{fmt(h.resultado)}
                   </div>
                 </div>

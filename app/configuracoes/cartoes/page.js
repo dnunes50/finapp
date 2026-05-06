@@ -49,38 +49,38 @@ export default function ConfigCartoes() {
     load()
   }
 
-  const CORES = ['#7F77DD','#8B5CF6','#1D4ED8','#D85A30','#1D9E75','#E24B4A','#EF9F27','#888780']
+  const CORES = ['#7F77DD','#8B5CF6','#1D4ED8','#D85A30','#22C55E','#EF4444','#EF9F27','#888780']
 
   return (
     <AppLayout>
       <div style={{ padding:'24px', maxWidth:'700px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px' }}>
           <div>
-            <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#1A1A18' }}>Cartões de crédito</h1>
-            <p style={{ fontSize:'13px', color:'#888' }}>{cartoes.length} cartões</p>
+            <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#F1F5F9' }}>Cartões de crédito</h1>
+            <p style={{ fontSize:'13px', color:'#64748B' }}>{cartoes.length} cartões</p>
           </div>
-          <button onClick={()=>setModal(true)} style={{ padding:'8px 16px', background:'#1D9E75', color:'#FFF', border:'none', borderRadius:'8px', fontSize:'12px', fontWeight:'500', cursor:'pointer' }}>
+          <button onClick={()=>setModal(true)} style={{ padding:'8px 16px', background:'#22C55E', color:'#FFF', border:'none', borderRadius:'8px', fontSize:'12px', fontWeight:'500', cursor:'pointer' }}>
             + Adicionar cartão
           </button>
         </div>
 
         <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-          {loading ? <p style={{ color:'#AAA', fontSize:'12px' }}>Carregando...</p> :
+          {loading ? <p style={{ color:'#475569', fontSize:'12px' }}>Carregando...</p> :
             cartoes.length === 0 ? (
-              <div style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'40px', textAlign:'center', color:'#AAA' }}>
+              <div style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'40px', textAlign:'center', color:'#475569' }}>
                 <div style={{ fontSize:'28px', marginBottom:'8px' }}>💳</div>
                 <p style={{ fontSize:'13px' }}>Nenhum cartão cadastrado</p>
               </div>
             ) :
             cartoes.map(c => (
-              <div key={c.id} style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'16px', display:'flex', gap:'14px', alignItems:'flex-start' }}>
+              <div key={c.id} style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'16px', display:'flex', gap:'14px', alignItems:'flex-start' }}>
                 <div style={{ width:'56px', height:'36px', borderRadius:'8px', background:c.cor||'#7F77DD', flexShrink:0, display:'flex', alignItems:'flex-end', justifyContent:'flex-end', padding:'5px' }}>
                   <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.8)', fontWeight:'600', textTransform:'uppercase' }}>{c.bandeira}</span>
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#1A1A18', marginBottom:'2px' }}>{c.nome}</div>
-                  <div style={{ fontSize:'11px', color:'#AAA' }}>Fecha dia {c.fechamento_dia} · Vence dia {c.vencimento_dia} · {c.contas?.nome||'sem conta vinculada'}</div>
-                  <div style={{ fontSize:'12px', color:'#555', marginTop:'4px' }}>Limite: R$ {fmt(c.limite)}</div>
+                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#F1F5F9', marginBottom:'2px' }}>{c.nome}</div>
+                  <div style={{ fontSize:'11px', color:'#475569' }}>Fecha dia {c.fechamento_dia} · Vence dia {c.vencimento_dia} · {c.contas?.nome||'sem conta vinculada'}</div>
+                  <div style={{ fontSize:'12px', color:'#94A3B8', marginTop:'4px' }}>Limite: R$ {fmt(c.limite)}</div>
                 </div>
                 <button onClick={()=>excluir(c.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#CCC', fontSize:'14px' }}>✕</button>
               </div>
@@ -91,10 +91,10 @@ export default function ConfigCartoes() {
 
       {modal && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
-          <div style={{ background:'#FFF', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'400px', margin:'16px', maxHeight:'90vh', overflowY:'auto' }}>
+          <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'400px', margin:'16px', maxHeight:'90vh', overflowY:'auto' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'20px' }}>
               <h2 style={{ fontSize:'16px', fontWeight:'600' }}>Novo cartão</h2>
-              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#888' }}>×</button>
+              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
             </div>
             <form onSubmit={salvar}>
               {[
@@ -104,35 +104,35 @@ export default function ConfigCartoes() {
                 { label:'Dia de vencimento', key:'vencimento_dia', type:'number', placeholder:'10', required:true },
               ].map(f=>(
                 <div key={f.key} style={{ marginBottom:'12px' }}>
-                  <label style={{ display:'block', fontSize:'11px', color:'#888', marginBottom:'4px' }}>{f.label}</label>
+                  <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>{f.label}</label>
                   <input type={f.type} value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})} placeholder={f.placeholder} required={f.required}
-                    style={{ width:'100%', padding:'9px 12px', border:'1px solid #E8E8E5', borderRadius:'8px', fontSize:'13px', outline:'none' }} />
+                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }} />
                 </div>
               ))}
               <div style={{ marginBottom:'12px' }}>
-                <label style={{ display:'block', fontSize:'11px', color:'#888', marginBottom:'4px' }}>Bandeira</label>
+                <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Bandeira</label>
                 <select value={form.bandeira} onChange={e=>setForm({...form,bandeira:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid #E8E8E5', borderRadius:'8px', fontSize:'13px', background:'#FFF' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
                   {['visa','mastercard','elo','amex','hipercard','outro'].map(b=><option key={b} value={b}>{b.charAt(0).toUpperCase()+b.slice(1)}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom:'12px' }}>
-                <label style={{ display:'block', fontSize:'11px', color:'#888', marginBottom:'4px' }}>Conta de débito</label>
+                <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Conta de débito</label>
                 <select value={form.conta_debito_id} onChange={e=>setForm({...form,conta_debito_id:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid #E8E8E5', borderRadius:'8px', fontSize:'13px', background:'#FFF' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
                   <option value="">Selecionar</option>
                   {contas.map(c=><option key={c.id} value={c.id}>{c.nome}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom:'16px' }}>
-                <label style={{ display:'block', fontSize:'11px', color:'#888', marginBottom:'6px' }}>Cor</label>
+                <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'6px' }}>Cor</label>
                 <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
                   {CORES.map(c=>(
                     <div key={c} onClick={()=>setForm({...form,cor:c})} style={{ width:'24px', height:'24px', borderRadius:'50%', background:c, cursor:'pointer', border: form.cor===c?'3px solid #1A1A18':'2px solid transparent' }}></div>
                   ))}
                 </div>
               </div>
-              <button type="submit" disabled={saving} style={{ width:'100%', padding:'11px', background:'#1D9E75', color:'#FFF', border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'500', cursor:'pointer' }}>
+              <button type="submit" disabled={saving} style={{ width:'100%', padding:'11px', background:'#22C55E', color:'#FFF', border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'500', cursor:'pointer' }}>
                 {saving?'Salvando...':'Adicionar cartão'}
               </button>
             </form>

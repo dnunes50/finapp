@@ -42,33 +42,33 @@ export default function ConfigWhatsApp() {
   return (
     <AppLayout>
       <div style={{ padding:'24px', maxWidth:'600px' }}>
-        <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#1A1A18', marginBottom:'4px' }}>WhatsApp</h1>
-        <p style={{ fontSize:'13px', color:'#888', marginBottom:'24px' }}>Registre gastos e consulte saldos pelo WhatsApp</p>
+        <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#F1F5F9', marginBottom:'4px' }}>WhatsApp</h1>
+        <p style={{ fontSize:'13px', color:'#64748B', marginBottom:'24px' }}>Registre gastos e consulte saldos pelo WhatsApp</p>
 
         {/* Vincular número */}
-        <div style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'20px', marginBottom:'16px' }}>
-          <div style={{ fontSize:'12px', fontWeight:'500', color:'#666', marginBottom:'14px' }}>Número vinculado</div>
+        <div style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'20px', marginBottom:'16px' }}>
+          <div style={{ fontSize:'12px', fontWeight:'500', color:'#94A3B8', marginBottom:'14px' }}>Número vinculado</div>
           <form onSubmit={salvar} style={{ display:'flex', gap:'8px' }}>
             <input
               type="tel" value={whatsapp} onChange={e=>setWhatsapp(e.target.value)}
               placeholder="(11) 99999-9999" required
-              style={{ flex:1, padding:'10px 12px', border:'1px solid #E8E8E5', borderRadius:'8px', fontSize:'13px', outline:'none' }}
+              style={{ flex:1, padding:'10px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }}
             />
-            <button type="submit" disabled={saving} style={{ padding:'10px 18px', background:'#1D9E75', color:'#FFF', border:'none', borderRadius:'8px', fontSize:'12px', fontWeight:'500', cursor:'pointer' }}>
+            <button type="submit" disabled={saving} style={{ padding:'10px 18px', background:'#22C55E', color:'#FFF', border:'none', borderRadius:'8px', fontSize:'12px', fontWeight:'500', cursor:'pointer' }}>
               {saving?'Salvando...':'Salvar'}
             </button>
           </form>
-          {sucesso && <p style={{ fontSize:'12px', color:'#0F6E56', marginTop:'8px' }}>✅ Número salvo com sucesso!</p>}
-          <p style={{ fontSize:'11px', color:'#AAA', marginTop:'10px' }}>Após vincular, envie uma mensagem para o número do FinApp para começar.</p>
+          {sucesso && <p style={{ fontSize:'12px', color:'#22C55E', marginTop:'8px' }}>✅ Número salvo com sucesso!</p>}
+          <p style={{ fontSize:'11px', color:'#475569', marginTop:'10px' }}>Após vincular, envie uma mensagem para o número do Controle+ para começar.</p>
         </div>
 
         {/* Comandos */}
-        <div style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'20px', marginBottom:'16px' }}>
-          <div style={{ fontSize:'12px', fontWeight:'500', color:'#666', marginBottom:'14px' }}>Comandos disponíveis</div>
+        <div style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'20px', marginBottom:'16px' }}>
+          <div style={{ fontSize:'12px', fontWeight:'500', color:'#94A3B8', marginBottom:'14px' }}>Comandos disponíveis</div>
           {COMANDOS.map((c,i) => (
             <div key={i} style={{ display:'flex', gap:'12px', padding:'8px 0', borderBottom: i<COMANDOS.length-1?'1px solid #F0F0EE':'none' }}>
-              <code style={{ fontSize:'12px', background:'#F5F5F3', padding:'2px 8px', borderRadius:'4px', color:'#185FA5', flexShrink:0 }}>{c.msg}</code>
-              <span style={{ fontSize:'12px', color:'#666' }}>{c.acao}</span>
+              <code style={{ fontSize:'12px', background:'#0F172A', padding:'2px 8px', borderRadius:'4px', color:'#185FA5', flexShrink:0 }}>{c.msg}</code>
+              <span style={{ fontSize:'12px', color:'#94A3B8' }}>{c.acao}</span>
             </div>
           ))}
         </div>
@@ -76,7 +76,7 @@ export default function ConfigWhatsApp() {
         {/* Info */}
         <div style={{ background:'#E1F5EE', border:'1px solid #9FE1CB', borderRadius:'12px', padding:'16px' }}>
           <div style={{ fontSize:'12px', fontWeight:'500', color:'#085041', marginBottom:'6px' }}>💡 Como funciona</div>
-          <p style={{ fontSize:'12px', color:'#0F6E56', lineHeight:'1.6' }}>
+          <p style={{ fontSize:'12px', color:'#22C55E', lineHeight:'1.6' }}>
             Nossa IA interpreta suas mensagens em linguagem natural. Não precisa seguir um formato exato — basta descrever o gasto normalmente.
           </p>
         </div>

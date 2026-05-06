@@ -64,8 +64,8 @@ export default function Orcamento() {
     <AppLayout>
       <div style={{ padding:'24px', maxWidth:'800px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px' }}>
-          <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#1A1A18' }}>Orçamento mensal</h1>
-          <select value={mes} onChange={e=>setMes(e.target.value)} style={{ padding:'7px 10px', border:'1px solid #E8E8E5', borderRadius:'8px', fontSize:'12px', background:'#FFF' }}>
+          <h1 style={{ fontSize:'20px', fontWeight:'600', color:'#F1F5F9' }}>Orçamento mensal</h1>
+          <select value={mes} onChange={e=>setMes(e.target.value)} style={{ padding:'7px 10px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'12px', background:'#1E293B' }}>
             {MESES_OPT.map(m=><option key={m} value={m}>{m}</option>)}
           </select>
         </div>
@@ -73,48 +73,48 @@ export default function Orcamento() {
         {totalLimite > 0 && (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px', marginBottom:'20px' }}>
             {[
-              { label:'Total orçado', value:`R$ ${fmt(totalLimite)}`, color:'#1A1A18' },
-              { label:'Realizado', value:`R$ ${fmt(totalRealizado)}`, color:'#A32D2D' },
-              { label:'Disponível', value:`R$ ${fmt(totalLimite-totalRealizado)}`, color: totalLimite>=totalRealizado?'#0F6E56':'#A32D2D' },
+              { label:'Total orçado', value:`R$ ${fmt(totalLimite)}`, color:'#F1F5F9' },
+              { label:'Realizado', value:`R$ ${fmt(totalRealizado)}`, color:'#EF4444' },
+              { label:'Disponível', value:`R$ ${fmt(totalLimite-totalRealizado)}`, color: totalLimite>=totalRealizado?'#22C55E':'#EF4444' },
             ].map(m=>(
-              <div key={m.label} style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'12px 16px' }}>
-                <div style={{ fontSize:'11px', color:'#888', marginBottom:'3px' }}>{m.label}</div>
+              <div key={m.label} style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'12px 16px' }}>
+                <div style={{ fontSize:'11px', color:'#64748B', marginBottom:'3px' }}>{m.label}</div>
                 <div style={{ fontSize:'16px', fontWeight:'600', color:m.color }}>{m.value}</div>
               </div>
             ))}
           </div>
         )}
 
-        <div style={{ background:'#FFF', border:'1px solid #E8E8E5', borderRadius:'12px', padding:'16px' }}>
-          <div style={{ fontSize:'12px', fontWeight:'500', color:'#666', marginBottom:'14px' }}>Definir limites por categoria</div>
-          {loading ? <p style={{ color:'#AAA', fontSize:'12px' }}>Carregando...</p> :
+        <div style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', padding:'16px' }}>
+          <div style={{ fontSize:'12px', fontWeight:'500', color:'#94A3B8', marginBottom:'14px' }}>Definir limites por categoria</div>
+          {loading ? <p style={{ color:'#475569', fontSize:'12px' }}>Carregando...</p> :
             categorias.map(cat => {
               const orc = orcamento.find(o=>o.categoria_id===cat.id)
               const pct = orc ? Math.min(Number(orc.percentual||0), 100) : 0
-              const cor = pct >= 100 ? '#E24B4A' : pct >= 80 ? '#EF9F27' : '#1D9E75'
+              const cor = pct >= 100 ? '#EF4444' : pct >= 80 ? '#EF9F27' : '#22C55E'
               return (
-                <div key={cat.id} style={{ padding:'12px 0', borderBottom:'1px solid #F0F0EE' }}>
+                <div key={cat.id} style={{ padding:'12px 0', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'6px' }}>
                     <span style={{ fontSize:'14px' }}>{cat.icone}</span>
-                    <span style={{ fontSize:'13px', color:'#333', flex:1 }}>{cat.nome}</span>
-                    {orc && <span style={{ fontSize:'11px', color:'#AAA' }}>Gasto: R$ {fmt(orc.valor_realizado)}</span>}
+                    <span style={{ fontSize:'13px', color:'#E2E8F0', flex:1 }}>{cat.nome}</span>
+                    {orc && <span style={{ fontSize:'11px', color:'#475569' }}>Gasto: R$ {fmt(orc.valor_realizado)}</span>}
                     <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
-                      <span style={{ fontSize:'12px', color:'#888' }}>R$</span>
+                      <span style={{ fontSize:'12px', color:'#64748B' }}>R$</span>
                       <input
                         type="text"
                         value={limites[cat.id]||''}
                         onChange={e=>setLimites({...limites,[cat.id]:e.target.value})}
                         placeholder="0,00"
-                        style={{ width:'90px', padding:'6px 8px', border:'1px solid #E8E8E5', borderRadius:'6px', fontSize:'12px', outline:'none', textAlign:'right' }}
+                        style={{ width:'90px', padding:'6px 8px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'6px', fontSize:'12px', outline:'none', textAlign:'right' }}
                       />
                       <button onClick={()=>salvarLimite(cat.id)} disabled={saving===cat.id}
-                        style={{ padding:'6px 12px', background:'#1D9E75', color:'#FFF', border:'none', borderRadius:'6px', fontSize:'11px', cursor:'pointer' }}>
+                        style={{ padding:'6px 12px', background:'#22C55E', color:'#FFF', border:'none', borderRadius:'6px', fontSize:'11px', cursor:'pointer' }}>
                         {saving===cat.id ? '...' : 'Salvar'}
                       </button>
                     </div>
                   </div>
                   {orc && orc.valor_limite > 0 && (
-                    <div style={{ height:'4px', background:'#F0F0EE', borderRadius:'2px', overflow:'hidden' }}>
+                    <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'2px', overflow:'hidden' }}>
                       <div style={{ height:'100%', width:`${pct}%`, background:cor, borderRadius:'2px', transition:'width 0.5s' }}></div>
                     </div>
                   )}
