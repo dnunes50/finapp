@@ -4,18 +4,19 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import AppLayout from '../dashboard/AppLayout'
 
-const MESES_LABEL = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
-const MESES_OPT = Array.from({length:36},(_,i)=>{
-  const d = new Date(); d.setMonth(d.getMonth() - 12 + i)
-  const m = String(d.getMonth()+1).padStart(2,'0')
-  const a = String(d.getFullYear()).slice(-2)
-  return { value:`${m}/${a}`, label:`${MESES_LABEL[d.getMonth()]}/${d.getFullYear()}` }
-}).reverse()
+function getHoje() { return new Date().toISOString().split('T')[0] }
+function getPrimeiro(d=new Date()) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01` }
+function getUltimo(d=new Date()) { return new Date(d.getFullYear(),d.getMonth()+1,0).toISOString().split('T')[0] }
 
-function getMesAtual() {
-  const d = new Date()
-  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`
-}
+const PERIODOS = [
+  { label:'Esta semana', fn: () => { const d=new Date(),dow=d.getDay(); const s=new Date(d); s.setDate(d.getDate()-dow); const e=new Date(s); e.setDate(s.getDate()+6); return [s.toISOString().split('T')[0], e.toISOString().split('T')[0]] }},
+  { label:'Este mês',    fn: () => [getPrimeiro(), getUltimo()] },
+  { label:'Este ano',    fn: () => [`${new Date().getFullYear()}-01-01`, `${new Date().getFullYear()}-12-31`] },
+  { label:'Últimos 30 dias', fn: () => { const d=new Date(); d.setDate(d.getDate()-30); return [d.toISOString().split('T')[0], getHoje()] }},
+  { label:'Últimos 12 meses', fn: () => { const d=new Date(); d.setMonth(d.getMonth()-12); return [d.toISOString().split('T')[0], getHoje()] }},
+  { label:'Todo o período', fn: () => ['2020-01-01', getHoje()] },
+  { label:'Período personalizado', fn: null },
+]
 
 function fmt(v) {
   return Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2})
@@ -44,7 +45,11 @@ export default function Lancamentos() {
   const [loading, setLoading]     = useState(true)
   const [modal, setModal]         = useState(false)
   const [saving, setSaving]       = useState(false)
-  const [mes, setMes]             = useState(getMesAtual())
+  const [periodo, setPeriodo]     = useState('Este mês')
+  const [de, setDe]               = useState(getPrimeiro())
+  const [ate, setAte]             = useState(getUltimo())
+  const [showPeriodo, setShowPeriodo] = useState(false)
+  const [personalizado, setPersonalizado] = useState(false)
   const [filtroTipo, setFiltroTipo] = useState('todos')
   const [filtroStatus, setFiltroStatus] = useState('todos')
   const [filtroConta, setFiltroConta] = useState('todos')
@@ -65,21 +70,20 @@ export default function Lancamentos() {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
-      await load(user, mes)
+      await load(user, getPrimeiro(), getUltimo())
     }
     init()
   }, [])
 
-  useEffect(() => { if (user) load(user, mes) }, [mes])
 
-  async function load(u, m) {
+  async function load(u, dataInicio, dataFim) {
     setLoading(true)
     const uid = u?.id || user?.id
-    let query = supabase.from('cp_lanc')
+    const { data } = await supabase.from('cp_lanc')
       .select('*, cp_categorias(nome,cor,icone), cp_contas(nome)')
-      .eq('user_id', uid).eq('mes', m)
+      .eq('user_id', uid)
+      .gte('data', dataInicio).lte('data', dataFim)
       .order('data', { ascending: false })
-    const { data } = await query
     setLanc(data || [])
     const { data: cats } = await supabase.from('cp_categorias')
       .select('*').or(`user_id.eq.${uid},user_id.is.null`).order('nome')
@@ -88,6 +92,19 @@ export default function Lancamentos() {
       .select('*').eq('user_id', uid).eq('ativo', true)
     setContas(cts || [])
     setLoading(false)
+  }
+
+  function selecionarPeriodo(p) {
+    setPeriodo(p.label)
+    setShowPeriodo(false)
+    if (p.fn) {
+      const [d, a] = p.fn()
+      setDe(d); setAte(a)
+      setPersonalizado(false)
+      load(null, d, a)
+    } else {
+      setPersonalizado(true)
+    }
   }
 
   async function salvar(e) {
@@ -147,7 +164,7 @@ export default function Lancamentos() {
     setIsDuplicar(false)
     setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado', recorrente:false, frequencia:'mensal', repeticoes:'12' })
     setSaving(false)
-    load(null, mes)
+    load(null, de, ate)
   }
 
   function abrirEditar(l) {
@@ -188,12 +205,12 @@ export default function Lancamentos() {
   async function excluir(id) {
     if (!confirm('Excluir este lançamento?')) return
     await supabase.from('cp_lanc').delete().eq('id', id)
-    load(null, mes)
+    load(null, de, ate)
   }
 
   async function marcarRealizado(id) {
     await supabase.from('cp_lanc').update({ status:'realizado' }).eq('id', id)
-    load(null, mes)
+    load(null, de, ate)
   }
 
   // Filtros aplicados
@@ -256,9 +273,45 @@ export default function Lancamentos() {
 
         {/* Filtros */}
         <div style={{ display:'flex', gap:'8px', marginBottom:'20px', flexWrap:'wrap', alignItems:'center' }}>
-          <select value={mes} onChange={e=>{setMes(e.target.value)}} style={sel}>
-            {MESES_OPT.map(m=><option key={m.value} value={m.value}>{m.label}</option>)}
-          </select>
+          {/* Seletor de período */}
+          <div style={{ position:'relative' }}>
+            <button type="button" onClick={()=>setShowPeriodo(!showPeriodo)} style={{
+              ...sel, display:'flex', alignItems:'center', gap:'8px', minWidth:'180px',
+              justifyContent:'space-between', padding:'7px 12px',
+            }}>
+              <span>{periodo}</span>
+              <span style={{fontSize:'10px'}}>▾</span>
+            </button>
+            {showPeriodo && (
+              <div style={{
+                position:'absolute', top:'calc(100% + 4px)', left:0, zIndex:100,
+                background:'#1E293B', border:'1px solid rgba(255,255,255,0.1)',
+                borderRadius:'12px', overflow:'hidden', minWidth:'220px',
+                boxShadow:'0 10px 40px rgba(0,0,0,0.4)',
+              }}>
+                {PERIODOS.map(p => (
+                  <div key={p.label} onClick={()=>selecionarPeriodo(p)}
+                    style={{
+                      padding:'11px 16px', fontSize:'13px', cursor:'pointer',
+                      color: periodo===p.label ? C.green : C.text,
+                      background: periodo===p.label ? 'rgba(34,197,94,0.08)' : 'transparent',
+                      borderBottom:'1px solid rgba(255,255,255,0.05)',
+                    }}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.05)'}
+                    onMouseLeave={e=>e.currentTarget.style.background=periodo===p.label?'rgba(34,197,94,0.08)':'transparent'}
+                  >{p.label}</div>
+                ))}
+              </div>
+            )}
+          </div>
+          {personalizado && (
+            <>
+              <input type="date" value={de} onChange={e=>setDe(e.target.value)} style={inp}/>
+              <span style={{color:C.muted, fontSize:'12px'}}>até</span>
+              <input type="date" value={ate} onChange={e=>setAte(e.target.value)} style={inp}/>
+              <button onClick={()=>load(null,de,ate)} style={{ padding:'7px 14px', background:C.green, color:'#0F172A', border:'none', borderRadius:'8px', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:"'Inter',sans-serif" }}>OK</button>
+            </>
+          )}
 
           <select value={filtroTipo} onChange={e=>setFiltroTipo(e.target.value)} style={sel}>
             <option value="todos">Entrada/Saída</option>
