@@ -54,6 +54,8 @@ export default function Lancamentos() {
     categoria_id:'', conta_id:'',
     data: new Date().toISOString().split('T')[0],
     status:'realizado',
+    recorrente: false,
+    dia_vencimento: '1',
   })
 
   useEffect(() => {
@@ -101,17 +103,27 @@ export default function Lancamentos() {
         status: form.status,
       }).eq('id', editId)
     } else {
+      const valorNum = parseFloat(form.valor.replace(',','.'))
       await supabase.from('cp_lanc').insert({
         user_id: u.id, tipo: form.tipo, descricao: form.descricao,
-        valor: parseFloat(form.valor.replace(',','.')),
-        data: form.data, mes: mesLanc,
+        valor: valorNum, data: form.data, mes: mesLanc,
         categoria_id: form.categoria_id || null,
         conta_id: form.conta_id || null,
         status: form.status,
       })
+      if (form.recorrente) {
+        await supabase.from('cp_recorrentes').insert({
+          user_id: u.id, descricao: form.descricao, tipo: form.tipo,
+          valor: valorNum,
+          dia_vencimento: parseInt(form.dia_vencimento) || 1,
+          categoria_id: form.categoria_id || null,
+          conta_id: form.conta_id || null,
+          ativo: true,
+        })
+      }
     }
     setModal(false); setEditId(null)
-    setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado' })
+    setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado', recorrente:false, dia_vencimento:'1' })
     setSaving(false)
     load(null, mes)
   }
@@ -126,6 +138,24 @@ export default function Lancamentos() {
       conta_id: l.conta_id || '',
       data: l.data,
       status: l.status,
+      recorrente: false,
+      dia_vencimento: '1',
+    })
+    setModal(true)
+  }
+
+  function duplicar(l) {
+    setEditId(null)
+    setForm({
+      descricao: l.descricao,
+      valor: String(l.valor).replace('.',','),
+      tipo: l.tipo,
+      categoria_id: l.categoria_id || '',
+      conta_id: l.conta_id || '',
+      data: new Date().toISOString().split('T')[0],
+      status: l.status,
+      recorrente: false,
+      dia_vencimento: '1',
     })
     setModal(true)
   }
@@ -245,6 +275,7 @@ export default function Lancamentos() {
                       <span style={{ fontSize:'13px', fontWeight:'600', color: l.tipo==='receita' ? C.green : C.red, minWidth:'90px', textAlign:'right' }}>
                         {l.tipo==='receita' ? '+' : '-'}R$ {fmt(l.valor)}
                       </span>
+                      <button onClick={()=>duplicar(l)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(139,92,246,0.1)', color:'#8B5CF6', border:'1px solid rgba(139,92,246,0.3)', borderRadius:'6px', cursor:'pointer' }}>⧉</button>
                       <button onClick={()=>abrirEditar(l)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color: C.sub, border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
                       <button onClick={()=>excluir(l.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color: C.red, fontSize:'13px', padding:'3px 8px', lineHeight:1 }}>✕</button>
                     </div>
@@ -315,6 +346,23 @@ export default function Lancamentos() {
                 </select>
               </div>
 
+              {!editId && (
+                <div style={{ marginBottom:'14px' }}>
+                  <label style={{ display:'flex', alignItems:'center', gap:'10px', cursor:'pointer' }}>
+                    <input type="checkbox" checked={form.recorrente} onChange={e=>setForm({...form,recorrente:e.target.checked})}
+                      style={{ width:'16px', height:'16px', accentColor:'#22C55E', cursor:'pointer' }} />
+                    <span style={{ fontSize:'13px', color: C.sub }}>Tornar recorrente</span>
+                  </label>
+                  {form.recorrente && (
+                    <div style={{ marginTop:'10px' }}>
+                      <label style={{ display:'block', fontSize:'11px', color: C.muted, marginBottom:'4px' }}>Dia de vencimento todo mês</label>
+                      <input type="number" min="1" max="31" value={form.dia_vencimento}
+                        onChange={e=>setForm({...form,dia_vencimento:e.target.value})}
+                        style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9', fontFamily:"'Inter', sans-serif" }} />
+                    </div>
+                  )}
+                </div>
+              )}
               <button type="submit" disabled={saving} style={{
                 width:'100%', padding:'11px', background: C.green, color:'#0F172A',
                 border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'600',
