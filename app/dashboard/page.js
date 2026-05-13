@@ -39,22 +39,22 @@ export default function Dashboard() {
       setUser(user)
 
       const { data: saldos } = await supabase
-        .from('saldos_por_conta').select('*').order('saldo_atual', { ascending: false })
+        .from('cp_saldos_por_conta').select('*').order('saldo_atual', { ascending: false })
       setContas(saldos || [])
 
       const { data: res } = await supabase
-        .from('resumo_mensal').select('*')
+        .from('cp_resumo_mensal').select('*')
         .eq('user_id', user.id).eq('mes', mes).single()
       setResumo(res)
 
       const { data: lanc } = await supabase
-        .from('lanc').select('*, categorias(nome,cor,icone), contas(nome)')
+        .from('cp_lanc').select('*, categorias(nome,cor,icone), contas(nome)')
         .eq('user_id', user.id).eq('mes', mes)
         .order('data', { ascending: false }).limit(6)
       setLancRecentes(lanc || [])
 
       const { data: orc } = await supabase
-        .from('orcamento_vs_realizado').select('*')
+        .from('cp_orcamento_vs_realizado').select('*')
         .eq('user_id', user.id).eq('mes', mes)
         .order('percentual', { ascending: false }).limit(5)
       setOrcamento(orc || [])

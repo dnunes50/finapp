@@ -28,12 +28,12 @@ export default function Orcamento() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
 
-    const { data: cats } = await supabase.from('categorias')
+    const { data: cats } = await supabase.from('cp_categorias')
       .select('*').or(`user_id.eq.${user.id},user_id.is.null`)
       .eq('tipo','despesa').eq('ativo',true).order('nome')
     setCategorias(cats||[])
 
-    const { data: orc } = await supabase.from('orcamento_vs_realizado')
+    const { data: orc } = await supabase.from('cp_orcamento_vs_realizado')
       .select('*').eq('user_id', user.id).eq('mes', mes)
     setOrcamento(orc||[])
 
@@ -49,7 +49,7 @@ export default function Orcamento() {
     setSaving(categoria_id)
     const { data: { user } } = await supabase.auth.getUser()
     const valor_limite = parseFloat(limites[categoria_id]?.replace(',','.') || '0')
-    await supabase.from('orcamento').upsert(
+    await supabase.from('cp_orcamento').upsert(
       { user_id: user.id, categoria_id, mes, valor_limite },
       { onConflict: 'user_id,categoria_id,mes' }
     )

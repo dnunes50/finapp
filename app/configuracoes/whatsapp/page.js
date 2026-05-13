@@ -15,7 +15,7 @@ export default function ConfigWhatsApp() {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
-      const { data } = await supabase.from('users').select('whatsapp').eq('id', user.id).single()
+      const { data } = await supabase.from('cp_users').select('whatsapp').eq('id', user.id).single()
       setWhatsapp(data?.whatsapp||'')
     }
     load()
@@ -24,7 +24,7 @@ export default function ConfigWhatsApp() {
   async function salvar(e) {
     e.preventDefault()
     setSaving(true)
-    await supabase.from('users').update({ whatsapp }).eq('id', user.id)
+    await supabase.from('cp_users').update({ whatsapp }).eq('id', user.id)
     setSaving(false)
     setSucesso(true)
     setTimeout(()=>setSucesso(false), 3000)

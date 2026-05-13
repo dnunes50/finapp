@@ -13,7 +13,7 @@ export async function GET(request) {
   const supabase = createServiceClient()
 
   const { data: usuarios } = await supabase
-    .from('usuarios')
+    .from('cp_users')
     .select('id, nome, whatsapp')
     .not('whatsapp', 'is', null)
 
@@ -37,7 +37,7 @@ export async function GET(request) {
 
 async function processarUsuario(supabase, usuario, inicio, fim) {
   const { data: lancamentos } = await supabase
-    .from('lancamentos')
+    .from('cp_lanc')
     .select('tipo, valor, categoria, descricao, data')
     .eq('user_id', usuario.id)
     .gte('data', inicio)

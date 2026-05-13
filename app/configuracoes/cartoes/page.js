@@ -18,9 +18,9 @@ export default function ConfigCartoes() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('cartoes').select('*, contas(nome)').eq('user_id', user.id).order('criado_em')
+    const { data } = await supabase.from('cp_cartoes').select('*, contas(nome)').eq('user_id', user.id).order('criado_em')
     setCartoes(data||[])
-    const { data: cts } = await supabase.from('contas').select('*').eq('user_id', user.id).eq('ativo',true)
+    const { data: cts } = await supabase.from('cp_contas').select('*').eq('user_id', user.id).eq('ativo',true)
     setContas(cts||[])
     setLoading(false)
   }
@@ -31,7 +31,7 @@ export default function ConfigCartoes() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('cartoes').insert({
+    await supabase.from('cp_cartoes').insert({
       ...form, user_id: user.id,
       limite: parseFloat(form.limite.replace(',','.')),
       fechamento_dia: parseInt(form.fechamento_dia),
@@ -45,7 +45,7 @@ export default function ConfigCartoes() {
 
   async function excluir(id) {
     if (!confirm('Excluir este cartão?')) return
-    await supabase.from('cartoes').delete().eq('id', id)
+    await supabase.from('cp_cartoes').delete().eq('id', id)
     load()
   }
 

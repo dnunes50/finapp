@@ -17,7 +17,7 @@ export default function Metas() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('metas').select('*').eq('user_id', user.id).order('criado_em', { ascending: false })
+    const { data } = await supabase.from('cp_metas').select('*').eq('user_id', user.id).order('criado_em', { ascending: false })
     setMetas(data || [])
     setLoading(false)
   }
@@ -28,7 +28,7 @@ export default function Metas() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('metas').insert({
+    await supabase.from('cp_metas').insert({
       ...form, user_id: user.id,
       valor_alvo: parseFloat(form.valor_alvo.replace(',','.')),
       valor_atual: parseFloat(form.valor_atual.replace(',','.') || '0'),
@@ -41,12 +41,12 @@ export default function Metas() {
 
   async function excluir(id) {
     if (!confirm('Excluir esta meta?')) return
-    await supabase.from('metas').delete().eq('id', id)
+    await supabase.from('cp_metas').delete().eq('id', id)
     load()
   }
 
   async function alterarStatus(id, status) {
-    await supabase.from('metas').update({ status }).eq('id', id)
+    await supabase.from('cp_metas').update({ status }).eq('id', id)
     load()
   }
 

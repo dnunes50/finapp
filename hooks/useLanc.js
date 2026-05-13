@@ -12,7 +12,7 @@ export function useLanc({ mes, ano } = {}) {
     const supabase = getSupabase()
 
     let query = supabase
-      .from('lancamentos')
+      .from('cp_lanc')
       .select('*')
       .order('data', { ascending: false })
 
@@ -32,7 +32,7 @@ export function useLanc({ mes, ano } = {}) {
 
   async function adicionar(lanc) {
     const supabase = getSupabase()
-    const { data, error } = await supabase.from('lancamentos').insert(lanc).select().single()
+    const { data, error } = await supabase.from('cp_lanc').insert(lanc).select().single()
     if (error) throw error
     setLancamentos((prev) => [data, ...prev])
     return data
@@ -40,7 +40,7 @@ export function useLanc({ mes, ano } = {}) {
 
   async function remover(id) {
     const supabase = getSupabase()
-    const { error } = await supabase.from('lancamentos').delete().eq('id', id)
+    const { error } = await supabase.from('cp_lanc').delete().eq('id', id)
     if (error) throw error
     setLancamentos((prev) => prev.filter((l) => l.id !== id))
   }
@@ -48,7 +48,7 @@ export function useLanc({ mes, ano } = {}) {
   async function atualizar(id, changes) {
     const supabase = getSupabase()
     const { data, error } = await supabase
-      .from('lancamentos')
+      .from('cp_lanc')
       .update(changes)
       .eq('id', id)
       .select()

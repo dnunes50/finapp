@@ -16,10 +16,10 @@ export default function Patrimonio() {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
 
-      const { data: saldos } = await supabase.from('saldos_por_conta').select('*').order('saldo_atual', { ascending: false })
+      const { data: saldos } = await supabase.from('cp_saldos_por_conta').select('*').order('saldo_atual', { ascending: false })
       setContas(saldos||[])
 
-      const { data: hist } = await supabase.from('resumo_mensal').select('*').eq('user_id', user.id).order('mes', { ascending: false }).limit(6)
+      const { data: hist } = await supabase.from('cp_resumo_mensal').select('*').eq('user_id', user.id).order('mes', { ascending: false }).limit(6)
       setHistorico((hist||[]).reverse())
 
       setLoading(false)

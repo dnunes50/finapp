@@ -47,7 +47,7 @@ export default function LoginPage() {
     const { data, error } = await supabase.auth.signUp({ email, password: senha })
     if (error) { setErro(error.message); setLoading(false); return }
     if (data.user) {
-      await supabase.from('users').insert({ id: data.user.id, email: data.user.email, nome })
+      await supabase.from('cp_users').insert({ id: data.user.id, email: data.user.email, nome })
     }
     setSucesso('Conta criada! Verifique seu email para confirmar.')
     setLoading(false)

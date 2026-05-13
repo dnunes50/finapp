@@ -34,7 +34,7 @@ export default function Lancamentos() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const q = supabase.from('lanc')
+    const q = supabase.from('cp_lanc')
       .select('*, categorias(nome,cor,icone), contas(nome)')
       .eq('user_id', user.id).eq('mes', mes)
       .order('data', { ascending: false })
@@ -43,9 +43,9 @@ export default function Lancamentos() {
     const { data } = await q
     setLanc(data || [])
 
-    const { data: cats } = await supabase.from('categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('nome')
+    const { data: cats } = await supabase.from('cp_categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('nome')
     setCategorias(cats || [])
-    const { data: cts } = await supabase.from('contas').select('*').eq('user_id', user.id).eq('ativo', true)
+    const { data: cts } = await supabase.from('cp_contas').select('*').eq('user_id', user.id).eq('ativo', true)
     setContas(cts || [])
     setLoading(false)
   }
@@ -56,7 +56,7 @@ export default function Lancamentos() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('lanc').insert({
+    await supabase.from('cp_lanc').insert({
       ...form, user_id: user.id,
       valor: parseFloat(form.valor.replace(',','.')),
       categoria_id: form.categoria_id || null,
@@ -70,12 +70,12 @@ export default function Lancamentos() {
 
   async function excluir(id) {
     if (!confirm('Excluir este lançamento?')) return
-    await supabase.from('lanc').delete().eq('id', id)
+    await supabase.from('cp_lanc').delete().eq('id', id)
     load()
   }
 
   async function marcarRealizado(id) {
-    await supabase.from('lanc').update({ status: 'realizado' }).eq('id', id)
+    await supabase.from('cp_lanc').update({ status: 'realizado' }).eq('id', id)
     load()
   }
 

@@ -34,7 +34,7 @@ export async function POST(request) {
   const supabase = createServiceClient ()
 
   const { data: usuario } = await supabase
-    .from('usuarios')
+    .from('cp_users')
     .select('id, nome')
     .eq('whatsapp', from)
     .single()
@@ -45,7 +45,7 @@ export async function POST(request) {
   }
 
   const { data: historico } = await supabase
-    .from('lancamentos')
+    .from('cp_lanc')
     .select('tipo, valor, categoria, descricao, data')
     .eq('user_id', usuario.id)
     .order('data', { ascending: false })
@@ -73,7 +73,7 @@ Caso contrário, responda normalmente em texto.`,
   try {
     const parsed = JSON.parse(conteudo)
     if (parsed.acao === 'lancar') {
-      await supabase.from('lancamentos').insert({
+      await supabase.from('cp_lanc').insert({
         user_id: usuario.id,
         tipo: parsed.tipo,
         valor: parsed.valor,

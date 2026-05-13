@@ -19,7 +19,7 @@ export default function ConfigCategorias() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('ordem').order('nome')
+    const { data } = await supabase.from('cp_categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('ordem').order('nome')
     setCategorias(data||[])
     setLoading(false)
   }
@@ -30,7 +30,7 @@ export default function ConfigCategorias() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('categorias').insert({ ...form, user_id: user.id })
+    await supabase.from('cp_categorias').insert({ ...form, user_id: user.id })
     setModal(false)
     setForm({ nome:'', tipo:'despesa', cor:'#888780', icone:'📦' })
     setSaving(false)
@@ -39,7 +39,7 @@ export default function ConfigCategorias() {
 
   async function excluir(id) {
     if (!confirm('Excluir esta categoria?')) return
-    await supabase.from('categorias').delete().eq('id', id)
+    await supabase.from('cp_categorias').delete().eq('id', id)
     load()
   }
 

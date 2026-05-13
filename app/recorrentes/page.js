@@ -19,11 +19,11 @@ export default function Recorrentes() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('recorrentes').select('*, categorias(nome,cor,icone), contas(nome)').eq('user_id', user.id).order('criado_em', { ascending: false })
+    const { data } = await supabase.from('cp_recorrentes').select('*, categorias(nome,cor,icone), contas(nome)').eq('user_id', user.id).order('criado_em', { ascending: false })
     setRecorrentes(data||[])
-    const { data: cats } = await supabase.from('categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('nome')
+    const { data: cats } = await supabase.from('cp_categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('nome')
     setCategorias(cats||[])
-    const { data: cts } = await supabase.from('contas').select('*').eq('user_id', user.id).eq('ativo',true)
+    const { data: cts } = await supabase.from('cp_contas').select('*').eq('user_id', user.id).eq('ativo',true)
     setContas(cts||[])
     setLoading(false)
   }
@@ -34,7 +34,7 @@ export default function Recorrentes() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('recorrentes').insert({
+    await supabase.from('cp_recorrentes').insert({
       ...form, user_id: user.id,
       valor: parseFloat(form.valor.replace(',','.')),
       dia_vencimento: parseInt(form.dia_vencimento),
@@ -47,13 +47,13 @@ export default function Recorrentes() {
   }
 
   async function toggleAtivo(id, ativo) {
-    await supabase.from('recorrentes').update({ ativo: !ativo }).eq('id', id)
+    await supabase.from('cp_recorrentes').update({ ativo: !ativo }).eq('id', id)
     load()
   }
 
   async function excluir(id) {
     if (!confirm('Excluir este recorrente?')) return
-    await supabase.from('recorrentes').delete().eq('id', id)
+    await supabase.from('cp_recorrentes').delete().eq('id', id)
     load()
   }
 
