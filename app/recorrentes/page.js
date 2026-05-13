@@ -19,7 +19,7 @@ export default function Recorrentes() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('cp_recorrentes').select('*, categorias(nome,cor,icone), contas(nome)').eq('user_id', user.id).order('criado_em', { ascending: false })
+    const { data } = await supabase.from('cp_recorrentes').select('*, cp_categorias(nome,cor,icone), cp_contas(nome)').eq('user_id', user.id).order('created_at', { ascending: false })
     setRecorrentes(data||[])
     const { data: cats } = await supabase.from('cp_categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('nome')
     setCategorias(cats||[])

@@ -18,7 +18,7 @@ export default function ConfigCartoes() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('cp_cartoes').select('*, contas(nome)').eq('user_id', user.id).order('criado_em')
+    const { data } = await supabase.from('cp_cartoes').select('*, cp_contas(nome)').eq('user_id', user.id).order('created_at')
     setCartoes(data||[])
     const { data: cts } = await supabase.from('cp_contas').select('*').eq('user_id', user.id).eq('ativo',true)
     setContas(cts||[])

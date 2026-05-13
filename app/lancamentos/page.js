@@ -35,7 +35,7 @@ export default function Lancamentos() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     const q = supabase.from('cp_lanc')
-      .select('*, categorias(nome,cor,icone), contas(nome)')
+      .select('*, cp_categorias(nome,cor,icone), cp_contas(nome)')
       .eq('user_id', user.id).eq('mes', mes)
       .order('data', { ascending: false })
     if (filtro !== 'todos') q.eq('tipo', filtro === 'pendentes' ? undefined : filtro)

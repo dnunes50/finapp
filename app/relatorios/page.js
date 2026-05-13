@@ -31,7 +31,7 @@ export default function Relatorios() {
       const { data: res } = await supabase.from('cp_resumo_mensal').select('*').eq('user_id', user.id).eq('mes', mes).single()
       setResumo(res)
 
-      const { data: cats } = await supabase.from('cp_orcamento_vs_realizado').select('*').eq('user_id', user.id).eq('mes', mes).order('valor_realizado', { ascending: false })
+      const { data: cats } = await supabase.from('cp_orcamento_vs_realizado').select('*').eq('user_id', user.id).eq('mes', mes).order('realizado', { ascending: false })
       setCategorias(cats || [])
 
       const { data: hist } = await supabase.from('cp_resumo_mensal').select('*').eq('user_id', user.id).order('mes', { ascending: false }).limit(6)

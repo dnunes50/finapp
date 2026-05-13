@@ -17,7 +17,7 @@ export default function Metas() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('cp_metas').select('*').eq('user_id', user.id).order('criado_em', { ascending: false })
+    const { data } = await supabase.from('cp_metas').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     setMetas(data || [])
     setLoading(false)
   }
@@ -46,7 +46,7 @@ export default function Metas() {
   }
 
   async function alterarStatus(id, status) {
-    await supabase.from('cp_metas').update({ status }).eq('id', id)
+    await supabase.from('cp_metas').update({ concluida: status === 'concluida' }).eq('id', id)
     load()
   }
 

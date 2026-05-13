@@ -19,7 +19,7 @@ export default function ConfigCategorias() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('cp_categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('ordem').order('nome')
+    const { data } = await supabase.from('cp_categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('nome')
     setCategorias(data||[])
     setLoading(false)
   }
