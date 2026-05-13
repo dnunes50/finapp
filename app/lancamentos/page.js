@@ -28,7 +28,7 @@ export default function Lancamentos() {
   const [form, setForm]             = useState({
     descricao:'', valor:'', tipo:'despesa', categoria_id:'',
     conta_id:'', data: new Date().toISOString().split('T')[0],
-    status:'realizado', notas:''
+    status:'realizado'
   })
 
   async function load() {
@@ -57,14 +57,21 @@ export default function Lancamentos() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
+    const d = form.data
+    const mes = d.split('-')[1] + '/' + d.split('-')[0].slice(-2)
     await supabase.from('cp_lanc').insert({
-      ...form, user_id: user.id,
+      user_id: user.id,
+      tipo: form.tipo,
+      descricao: form.descricao,
       valor: parseFloat(form.valor.replace(',','.')),
+      data: form.data,
+      mes,
       categoria_id: form.categoria_id || null,
       conta_id: form.conta_id || null,
+      status: form.status,
     })
     setModal(false)
-    setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado', notas:'' })
+    setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado' })
     setSaving(false)
     load()
   }
