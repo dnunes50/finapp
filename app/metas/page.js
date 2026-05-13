@@ -28,15 +28,30 @@ export default function Metas() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('cp_metas').insert({
-      ...form, user_id: user.id,
-      valor_alvo: parseFloat(form.valor_alvo.replace(',','.')),
-      valor_atual: parseFloat(form.valor_atual.replace(',','.') || '0'),
-    })
-    setModal(false)
+    if (editId) {
+      await supabase.from('cp_metas').update({
+        nome:form.nome, descricao:form.descricao,
+        valor_alvo: parseFloat(form.valor_alvo.replace(',','.')),
+        valor_atual: parseFloat(form.valor_atual.replace(',','.') || '0'),
+        prazo: form.prazo||null, cor:form.cor,
+      }).eq('id', editId)
+    } else {
+      await supabase.from('cp_metas').insert({
+        ...form, user_id: user.id,
+        valor_alvo: parseFloat(form.valor_alvo.replace(',','.')),
+        valor_atual: parseFloat(form.valor_atual.replace(',','.') || '0'),
+      })
+    }
+    setModal(false); setEditId(null)
     setForm({ nome:'', descricao:'', valor_alvo:'', valor_atual:'0', prazo:'', cor:'#22C55E' })
     setSaving(false)
     load()
+  }
+
+  function abrirEditar(m) {
+    setEditId(m.id)
+    setForm({ nome:m.nome, descricao:m.descricao||'', valor_alvo:String(m.valor_alvo), valor_atual:String(m.valor_atual), prazo:m.prazo||'', cor:m.cor||'#22C55E' })
+    setModal(true)
   }
 
   async function excluir(id) {
@@ -86,7 +101,8 @@ export default function Metas() {
                   </div>
                   <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
                     <span style={{ fontSize:'9px', padding:'2px 8px', borderRadius:'20px', background:si.bg, color:si.color, fontWeight:'500' }}>{si.label}</span>
-                    <button onClick={()=>excluir(m.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#CCC', fontSize:'14px' }}>✕</button>
+                    <button onClick={()=>abrirEditar(m)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color:'#94A3B8', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
+                    <button onClick={()=>excluir(m.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color:'#EF4444', fontSize:'13px', padding:'3px 8px' }}>✕</button>
                   </div>
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'6px' }}>
@@ -116,7 +132,7 @@ export default function Metas() {
           <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'400px', margin:'16px' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'20px' }}>
               <h2 style={{ fontSize:'16px', fontWeight:'600' }}>Nova meta</h2>
-              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
+              <button onClick={()=>{setModal(false);setEditId(null)}} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
             </div>
             <form onSubmit={salvar}>
               {[

@@ -34,18 +34,32 @@ export default function Recorrentes() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('cp_recorrentes').insert({
-      user_id: user.id,
-      descricao: form.descricao,
-      tipo: form.tipo,
-      valor: parseFloat(form.valor.replace(',','.')),
-      dia_vencimento: parseInt(form.dia_vencimento),
-      categoria_id: form.categoria_id || null,
-      conta_id: form.conta_id || null,
-    })
-    setModal(false)
+    if (editId) {
+      await supabase.from('cp_recorrentes').update({
+        descricao:form.descricao, tipo:form.tipo,
+        valor: parseFloat(form.valor.replace(',','.')),
+        dia_vencimento: parseInt(form.dia_vencimento),
+        categoria_id: form.categoria_id || null,
+        conta_id: form.conta_id || null,
+      }).eq('id', editId)
+    } else {
+      await supabase.from('cp_recorrentes').insert({
+        user_id: user.id, descricao:form.descricao, tipo:form.tipo,
+        valor: parseFloat(form.valor.replace(',','.')),
+        dia_vencimento: parseInt(form.dia_vencimento),
+        categoria_id: form.categoria_id || null,
+        conta_id: form.conta_id || null,
+      })
+    }
+    setModal(false); setEditId(null)
     setSaving(false)
     load()
+  }
+
+  function abrirEditar(r) {
+    setEditId(r.id)
+    setForm({ descricao:r.descricao, valor:String(r.valor), tipo:r.tipo, categoria_id:r.categoria_id||'', conta_id:r.conta_id||'', dia_vencimento:String(r.dia_vencimento) })
+    setModal(true)
   }
 
   async function toggleAtivo(id, ativo) {
@@ -107,7 +121,8 @@ export default function Recorrentes() {
                 <button onClick={()=>toggleAtivo(r.id,r.ativo)} style={{ padding:'4px 10px', fontSize:'10px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'6px', cursor:'pointer', background: r.ativo?'#FFF':'#F0F0EE', color:'#94A3B8' }}>
                   {r.ativo?'Pausar':'Ativar'}
                 </button>
-                <button onClick={()=>excluir(r.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#CCC', fontSize:'14px' }}>✕</button>
+                <button onClick={()=>abrirEditar(r)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color:'#94A3B8', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
+                <button onClick={()=>excluir(r.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color:'#EF4444', fontSize:'13px', padding:'3px 8px' }}>✕</button>
               </div>
             ))
           }
@@ -119,7 +134,7 @@ export default function Recorrentes() {
           <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'400px', margin:'16px' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'20px' }}>
               <h2 style={{ fontSize:'16px', fontWeight:'600' }}>Novo recorrente</h2>
-              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
+              <button onClick={()=>{setModal(false);setEditId(null)}} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
             </div>
             <form onSubmit={salvar}>
               <div style={{ display:'flex', gap:'6px', marginBottom:'14px' }}>

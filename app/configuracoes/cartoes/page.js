@@ -13,6 +13,7 @@ export default function ConfigCartoes() {
   const [loading, setLoading] = useState(true)
   const [modal, setModal]     = useState(false)
   const [saving, setSaving]   = useState(false)
+  const [editId, setEditId]   = useState(null)
   const [form, setForm]       = useState({ nome:'', bandeira:'visa', limite:'', fechamento_dia:'3', vencimento_dia:'10', conta_debito_id:'', cor:'#7F77DD' })
 
   async function load() {
@@ -31,16 +32,32 @@ export default function ConfigCartoes() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('cp_cartoes').insert({
-      ...form, user_id: user.id,
-      limite: parseFloat(form.limite.replace(',','.')),
-      fechamento_dia: parseInt(form.fechamento_dia),
-      vencimento_dia: parseInt(form.vencimento_dia),
-      conta_debito_id: form.conta_debito_id||null,
-    })
-    setModal(false)
+    if (editId) {
+      await supabase.from('cp_cartoes').update({
+        nome:form.nome, bandeira:form.bandeira, cor:form.cor,
+        limite: parseFloat(form.limite.replace(',','.')),
+        fechamento_dia: parseInt(form.fechamento_dia),
+        vencimento_dia: parseInt(form.vencimento_dia),
+        conta_debito_id: form.conta_debito_id||null,
+      }).eq('id', editId)
+    } else {
+      await supabase.from('cp_cartoes').insert({
+        ...form, user_id: user.id,
+        limite: parseFloat(form.limite.replace(',','.')),
+        fechamento_dia: parseInt(form.fechamento_dia),
+        vencimento_dia: parseInt(form.vencimento_dia),
+        conta_debito_id: form.conta_debito_id||null,
+      })
+    }
+    setModal(false); setEditId(null)
     setSaving(false)
     load()
+  }
+
+  function abrirEditar(cartao) {
+    setEditId(cartao.id)
+    setForm({ nome:cartao.nome, bandeira:cartao.bandeira||'visa', limite:String(cartao.limite), fechamento_dia:String(cartao.fechamento_dia), vencimento_dia:String(cartao.vencimento_dia), cor:cartao.cor||'#8B5CF6', conta_debito_id:cartao.conta_debito_id||'' })
+    setModal(true)
   }
 
   async function excluir(id) {
@@ -82,7 +99,8 @@ export default function ConfigCartoes() {
                   <div style={{ fontSize:'11px', color:'#475569' }}>Fecha dia {c.fechamento_dia} · Vence dia {c.vencimento_dia} · {c.contas?.nome||'sem conta vinculada'}</div>
                   <div style={{ fontSize:'12px', color:'#94A3B8', marginTop:'4px' }}>Limite: R$ {fmt(c.limite)}</div>
                 </div>
-                <button onClick={()=>excluir(c.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#CCC', fontSize:'14px' }}>✕</button>
+                <button onClick={()=>abrirEditar(c)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color:'#94A3B8', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
+                <button onClick={()=>excluir(c.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color:'#EF4444', fontSize:'13px', padding:'3px 8px' }}>✕</button>
               </div>
             ))
           }
@@ -94,7 +112,7 @@ export default function ConfigCartoes() {
           <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'400px', margin:'16px', maxHeight:'90vh', overflowY:'auto' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'20px' }}>
               <h2 style={{ fontSize:'16px', fontWeight:'600' }}>Novo cartão</h2>
-              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
+              <button onClick={()=>{setModal(false);setEditId(null)}} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
             </div>
             <form onSubmit={salvar}>
               {[

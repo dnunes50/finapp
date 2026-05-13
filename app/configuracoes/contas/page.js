@@ -15,6 +15,7 @@ export default function ConfigContas() {
   const [loading, setLoading] = useState(true)
   const [modal, setModal]     = useState(false)
   const [saving, setSaving]   = useState(false)
+  const [editId, setEditId]   = useState(null)
   const [form, setForm]       = useState({ nome:'', tipo:'corrente', banco:'', saldo_inicial:'0', cor:'#22C55E', incluir_patrimonio:true })
 
   async function load() {
@@ -31,12 +32,19 @@ export default function ConfigContas() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('cp_contas').insert({
-      ...form, user_id: user.id,
-      saldo_inicial: parseFloat(form.saldo_inicial.replace(',','.') || '0'),
-      ordem: contas.length,
-    })
-    setModal(false)
+    if (editId) {
+      await supabase.from('cp_contas').update({
+        nome:form.nome, tipo:form.tipo, banco:form.banco,
+        cor:form.cor, incluir_patrimonio:form.incluir_patrimonio,
+      }).eq('id', editId)
+    } else {
+      await supabase.from('cp_contas').insert({
+        ...form, user_id: user.id,
+        saldo_inicial: parseFloat(form.saldo_inicial.replace(',','.') || '0'),
+        ordem: contas.length,
+      })
+    }
+    setModal(false); setEditId(null)
     setForm({ nome:'', tipo:'corrente', banco:'', saldo_inicial:'0', cor:'#22C55E', incluir_patrimonio:true })
     setSaving(false)
     load()
@@ -45,6 +53,12 @@ export default function ConfigContas() {
   async function toggleAtivo(id, ativo) {
     await supabase.from('cp_contas').update({ ativo:!ativo }).eq('id', id)
     load()
+  }
+
+  function abrirEditar(conta) {
+    setEditId(conta.id)
+    setForm({ nome:conta.nome, tipo:conta.tipo, banco:conta.banco||'', saldo_inicial:String(conta.saldo_inicial), cor:conta.cor||'#22C55E', incluir_patrimonio:conta.incluir_patrimonio })
+    setModal(true)
   }
 
   async function excluir(id) {
@@ -92,7 +106,8 @@ export default function ConfigContas() {
                 <button onClick={()=>toggleAtivo(c.id,c.ativo)} style={{ padding:'4px 10px', fontSize:'10px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'6px', cursor:'pointer', background:'#1E293B', color:'#94A3B8' }}>
                   {c.ativo?'Desativar':'Ativar'}
                 </button>
-                <button onClick={()=>excluir(c.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#CCC', fontSize:'14px' }}>✕</button>
+                <button onClick={()=>abrirEditar(c)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color:'#94A3B8', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
+                <button onClick={()=>excluir(c.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color:'#EF4444', fontSize:'13px', padding:'3px 8px' }}>✕</button>
               </div>
             ))
           }
@@ -104,7 +119,7 @@ export default function ConfigContas() {
           <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'400px', margin:'16px' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'20px' }}>
               <h2 style={{ fontSize:'16px', fontWeight:'600' }}>Nova conta</h2>
-              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
+              <button onClick={()=>{setModal(false);setEditId(null)}} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
             </div>
             <form onSubmit={salvar}>
               {[

@@ -30,11 +30,21 @@ export default function ConfigCategorias() {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('cp_categorias').insert({ ...form, user_id: user.id })
-    setModal(false)
+    if (editId) {
+      await supabase.from('cp_categorias').update({ nome:form.nome, tipo:form.tipo, icone:form.icone, cor:form.cor }).eq('id', editId)
+    } else {
+      await supabase.from('cp_categorias').insert({ ...form, user_id: user.id })
+    }
+    setModal(false); setEditId(null)
     setForm({ nome:'', tipo:'despesa', cor:'#888780', icone:'📦' })
     setSaving(false)
     load()
+  }
+
+  function abrirEditar(cat) {
+    setEditId(cat.id)
+    setForm({ nome:cat.nome, tipo:cat.tipo, icone:cat.icone||'📦', cor:cat.cor||'#64748B' })
+    setModal(true)
   }
 
   async function excluir(id) {
@@ -76,7 +86,8 @@ export default function ConfigCategorias() {
                   {c.is_default && <span style={{ fontSize:'9px', marginLeft:'6px', padding:'1px 6px', background:'rgba(255,255,255,0.06)', color:'#64748B', borderRadius:'20px' }}>Padrão</span>}
                 </div>
                 {!c.is_default && (
-                  <button onClick={()=>excluir(c.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#CCC', fontSize:'14px' }}>✕</button>
+                  <button onClick={()=>abrirEditar(c)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color:'#94A3B8', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
+                  <button onClick={()=>excluir(c.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color:'#EF4444', fontSize:'13px', padding:'3px 8px' }}>✕</button>
                 )}
               </div>
             ))
@@ -89,7 +100,7 @@ export default function ConfigCategorias() {
           <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'400px', margin:'16px', maxHeight:'90vh', overflowY:'auto' }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'20px' }}>
               <h2 style={{ fontSize:'16px', fontWeight:'600' }}>Nova categoria</h2>
-              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
+              <button onClick={()=>{setModal(false);setEditId(null)}} style={{ background:'none', border:'none', fontSize:'20px', cursor:'pointer', color:'#64748B' }}>×</button>
             </div>
             <form onSubmit={salvar}>
               <div style={{ marginBottom:'12px' }}>

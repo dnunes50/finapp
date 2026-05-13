@@ -48,6 +48,7 @@ export default function Lancamentos() {
   const [filtroStatus, setFiltroStatus] = useState('todos')
   const [filtroConta, setFiltroConta] = useState('todos')
   const [busca, setBusca]         = useState('')
+  const [editId, setEditId]       = useState(null)
   const [form, setForm]           = useState({
     descricao:'', valor:'', tipo:'despesa',
     categoria_id:'', conta_id:'',
@@ -90,21 +91,43 @@ export default function Lancamentos() {
     const { data: { user: u } } = await supabase.auth.getUser()
     const d = form.data
     const mesLanc = d.split('-')[1] + '/' + d.split('-')[0].slice(-2)
-    await supabase.from('cp_lanc').insert({
-      user_id: u.id,
-      tipo: form.tipo,
-      descricao: form.descricao,
-      valor: parseFloat(form.valor.replace(',','.')),
-      data: form.data,
-      mes: mesLanc,
-      categoria_id: form.categoria_id || null,
-      conta_id: form.conta_id || null,
-      status: form.status,
-    })
-    setModal(false)
+    if (editId) {
+      await supabase.from('cp_lanc').update({
+        tipo: form.tipo, descricao: form.descricao,
+        valor: parseFloat(form.valor.replace(',','.')),
+        data: form.data, mes: mesLanc,
+        categoria_id: form.categoria_id || null,
+        conta_id: form.conta_id || null,
+        status: form.status,
+      }).eq('id', editId)
+    } else {
+      await supabase.from('cp_lanc').insert({
+        user_id: u.id, tipo: form.tipo, descricao: form.descricao,
+        valor: parseFloat(form.valor.replace(',','.')),
+        data: form.data, mes: mesLanc,
+        categoria_id: form.categoria_id || null,
+        conta_id: form.conta_id || null,
+        status: form.status,
+      })
+    }
+    setModal(false); setEditId(null)
     setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado' })
     setSaving(false)
     load(null, mes)
+  }
+
+  function abrirEditar(l) {
+    setEditId(l.id)
+    setForm({
+      descricao: l.descricao,
+      valor: String(l.valor).replace('.',','),
+      tipo: l.tipo,
+      categoria_id: l.categoria_id || '',
+      conta_id: l.conta_id || '',
+      data: l.data,
+      status: l.status,
+    })
+    setModal(true)
   }
 
   async function excluir(id) {
@@ -222,7 +245,8 @@ export default function Lancamentos() {
                       <span style={{ fontSize:'13px', fontWeight:'600', color: l.tipo==='receita' ? C.green : C.red, minWidth:'90px', textAlign:'right' }}>
                         {l.tipo==='receita' ? '+' : '-'}R$ {fmt(l.valor)}
                       </span>
-                      <button onClick={()=>excluir(l.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'#475569', fontSize:'16px', padding:'2px 4px', lineHeight:1 }}>×</button>
+                      <button onClick={()=>abrirEditar(l)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color: C.sub, border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
+                      <button onClick={()=>excluir(l.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color: C.red, fontSize:'13px', padding:'3px 8px', lineHeight:1 }}>✕</button>
                     </div>
                   </div>
                 ))}
@@ -237,8 +261,8 @@ export default function Lancamentos() {
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
           <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'420px', margin:'16px', border:'1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px' }}>
-              <h2 style={{ fontSize:'16px', fontWeight:'600', color: C.text }}>Novo lançamento</h2>
-              <button onClick={()=>setModal(false)} style={{ background:'none', border:'none', color: C.muted, fontSize:'20px', cursor:'pointer' }}>×</button>
+              <h2 style={{ fontSize:'16px', fontWeight:'600', color: C.text }}>{editId ? 'Editar lançamento' : 'Novo lançamento'}</h2>
+              <button onClick={()=>{setModal(false);setEditId(null)}} style={{ background:'none', border:'none', color: C.muted, fontSize:'20px', cursor:'pointer' }}>×</button>
             </div>
 
             <form onSubmit={salvar}>
@@ -296,7 +320,7 @@ export default function Lancamentos() {
                 border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'600',
                 cursor: saving ? 'not-allowed' : 'pointer', fontFamily:"'Inter', sans-serif",
               }}>
-                {saving ? 'Salvando...' : 'Salvar lançamento'}
+                {saving ? 'Salvando...' : editId ? 'Atualizar' : 'Salvar lançamento'}
               </button>
             </form>
           </div>
