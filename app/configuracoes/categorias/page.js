@@ -86,8 +86,10 @@ export default function ConfigCategorias() {
                   {c.is_default && <span style={{ fontSize:'9px', marginLeft:'6px', padding:'1px 6px', background:'rgba(255,255,255,0.06)', color:'#64748B', borderRadius:'20px' }}>Padrão</span>}
                 </div>
                 {!c.is_default && (
-                  <button onClick={()=>abrirEditar(c)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color:'#94A3B8', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
-                  <button onClick={()=>excluir(c.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color:'#EF4444', fontSize:'13px', padding:'3px 8px' }}>✕</button>
+                  <>
+                    <button onClick={()=>abrirEditar(c)} style={{ fontSize:'11px', padding:'3px 10px', background:'rgba(255,255,255,0.06)', color:'#94A3B8', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', cursor:'pointer' }}>Editar</button>
+                    <button onClick={()=>excluir(c.id)} style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'6px', cursor:'pointer', color:'#EF4444', fontSize:'13px', padding:'3px 8px' }}>✕</button>
+                  </>
                 )}
               </div>
             ))
