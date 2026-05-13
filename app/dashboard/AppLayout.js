@@ -88,7 +88,6 @@ const NAV = [
   { href: '/metas',       icon: Icons.metas,        label: 'Metas' },
   { href: '/orcamento',   icon: Icons.orcamento,    label: 'Orçamento' },
   { href: '/patrimonio',  icon: Icons.patrimonio,   label: 'Patrimônio' },
-  { href: '/recorrentes', icon: Icons.recorrentes,  label: 'Recorrentes' },
 ]
 
 const NAV_CONFIG = [

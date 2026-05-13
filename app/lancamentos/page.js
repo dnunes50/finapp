@@ -49,13 +49,15 @@ export default function Lancamentos() {
   const [filtroConta, setFiltroConta] = useState('todos')
   const [busca, setBusca]         = useState('')
   const [editId, setEditId]       = useState(null)
+  const [isDuplicar, setIsDuplicar] = useState(false)
   const [form, setForm]           = useState({
     descricao:'', valor:'', tipo:'despesa',
     categoria_id:'', conta_id:'',
     data: new Date().toISOString().split('T')[0],
     status:'realizado',
     recorrente: false,
-    dia_vencimento: '1',
+    frequencia: 'mensal',
+    repeticoes: '12',
   })
 
   useEffect(() => {
@@ -112,18 +114,37 @@ export default function Lancamentos() {
         status: form.status,
       })
       if (form.recorrente) {
-        await supabase.from('cp_recorrentes').insert({
-          user_id: u.id, descricao: form.descricao, tipo: form.tipo,
-          valor: valorNum,
-          dia_vencimento: parseInt(form.dia_vencimento) || 1,
-          categoria_id: form.categoria_id || null,
-          conta_id: form.conta_id || null,
-          ativo: true,
-        })
+        const reps = parseInt(form.repeticoes) || 1
+        const inserts = []
+        for (let i = 1; i < reps; i++) {
+          const baseDate = new Date(form.data + 'T12:00:00')
+          let novaData
+          if (form.frequencia === 'mensal') {
+            novaData = new Date(baseDate)
+            novaData.setMonth(novaData.getMonth() + i)
+          } else if (form.frequencia === 'semanal') {
+            novaData = new Date(baseDate)
+            novaData.setDate(novaData.getDate() + (7 * i))
+          } else if (form.frequencia === 'anual') {
+            novaData = new Date(baseDate)
+            novaData.setFullYear(novaData.getFullYear() + i)
+          }
+          const dStr = novaData.toISOString().split('T')[0]
+          const mStr = dStr.split('-')[1] + '/' + dStr.split('-')[0].slice(-2)
+          inserts.push({
+            user_id: u.id, tipo: form.tipo, descricao: form.descricao,
+            valor: valorNum, data: dStr, mes: mStr,
+            categoria_id: form.categoria_id || null,
+            conta_id: form.conta_id || null,
+            status: form.status,
+          })
+        }
+        if (inserts.length > 0) await supabase.from('cp_lanc').insert(inserts)
       }
     }
     setModal(false); setEditId(null)
-    setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado', recorrente:false, dia_vencimento:'1' })
+    setIsDuplicar(false)
+    setForm({ descricao:'', valor:'', tipo:'despesa', categoria_id:'', conta_id:'', data: new Date().toISOString().split('T')[0], status:'realizado', recorrente:false, frequencia:'mensal', repeticoes:'12' })
     setSaving(false)
     load(null, mes)
   }
@@ -139,13 +160,15 @@ export default function Lancamentos() {
       data: l.data,
       status: l.status,
       recorrente: false,
-      dia_vencimento: '1',
+      frequencia: 'mensal',
+      repeticoes: '12',
     })
     setModal(true)
   }
 
   function duplicar(l) {
     setEditId(null)
+    setIsDuplicar(true)
     setForm({
       descricao: l.descricao,
       valor: String(l.valor).replace('.',','),
@@ -155,7 +178,8 @@ export default function Lancamentos() {
       data: new Date().toISOString().split('T')[0],
       status: l.status,
       recorrente: false,
-      dia_vencimento: '1',
+      frequencia: 'mensal',
+      repeticoes: '12',
     })
     setModal(true)
   }
@@ -292,8 +316,8 @@ export default function Lancamentos() {
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
           <div style={{ background:'#1E293B', borderRadius:'16px', padding:'24px', width:'100%', maxWidth:'420px', margin:'16px', border:'1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px' }}>
-              <h2 style={{ fontSize:'16px', fontWeight:'600', color: C.text }}>{editId ? 'Editar lançamento' : 'Novo lançamento'}</h2>
-              <button onClick={()=>{setModal(false);setEditId(null)}} style={{ background:'none', border:'none', color: C.muted, fontSize:'20px', cursor:'pointer' }}>×</button>
+              <h2 style={{ fontSize:'16px', fontWeight:'600', color: C.text }}>{editId ? 'Editar lançamento' : isDuplicar ? '⧉ Duplicar' : 'Novo lançamento'}</h2>
+              <button onClick={()=>{setModal(false);setEditId(null);setIsDuplicar(false)}} style={{ background:'none', border:'none', color: C.muted, fontSize:'20px', cursor:'pointer' }}>×</button>
             </div>
 
             <form onSubmit={salvar}>
@@ -348,19 +372,43 @@ export default function Lancamentos() {
 
               {!editId && (
                 <div style={{ marginBottom:'14px' }}>
-                  <label style={{ display:'flex', alignItems:'center', gap:'10px', cursor:'pointer' }}>
+                  <label style={{ display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', marginBottom:'10px' }}>
                     <input type="checkbox" checked={form.recorrente} onChange={e=>setForm({...form,recorrente:e.target.checked})}
                       style={{ width:'16px', height:'16px', accentColor:'#22C55E', cursor:'pointer' }} />
-                    <span style={{ fontSize:'13px', color: C.sub }}>Tornar recorrente</span>
+                    <span style={{ fontSize:'13px', fontWeight:'500', color: C.sub }}>🔁 Recorrente</span>
                   </label>
-                  {form.recorrente && (
-                    <div style={{ marginTop:'10px' }}>
-                      <label style={{ display:'block', fontSize:'11px', color: C.muted, marginBottom:'4px' }}>Dia de vencimento todo mês</label>
-                      <input type="number" min="1" max="31" value={form.dia_vencimento}
-                        onChange={e=>setForm({...form,dia_vencimento:e.target.value})}
-                        style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9', fontFamily:"'Inter', sans-serif" }} />
-                    </div>
-                  )}
+                  {form.recorrente && (() => {
+                    const reps = parseInt(form.repeticoes) || 1
+                    const baseDate = new Date(form.data + 'T12:00:00')
+                    const fimDate = new Date(baseDate)
+                    if (form.frequencia === 'mensal') fimDate.setMonth(fimDate.getMonth() + reps - 1)
+                    else if (form.frequencia === 'semanal') fimDate.setDate(fimDate.getDate() + 7*(reps-1))
+                    else if (form.frequencia === 'anual') fimDate.setFullYear(fimDate.getFullYear() + reps - 1)
+                    const fmtDate = d => d.toLocaleDateString('pt-BR')
+                    return (
+                      <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'10px', padding:'14px' }}>
+                        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'10px' }}>
+                          <div>
+                            <label style={{ display:'block', fontSize:'11px', color: C.muted, marginBottom:'4px', textTransform:'uppercase', letterSpacing:'.05em' }}>Frequência</label>
+                            <select value={form.frequencia} onChange={e=>setForm({...form,frequencia:e.target.value})} style={inputModal}>
+                              <option value="semanal">Semanal</option>
+                              <option value="mensal">Mensal</option>
+                              <option value="anual">Anual</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ display:'block', fontSize:'11px', color: C.muted, marginBottom:'4px', textTransform:'uppercase', letterSpacing:'.05em' }}>Repetições</label>
+                            <input type="number" min="2" max="120" value={form.repeticoes}
+                              onChange={e=>setForm({...form,repeticoes:e.target.value})}
+                              style={inputModal} />
+                          </div>
+                        </div>
+                        <p style={{ fontSize:'12px', color: C.green, margin:0 }}>
+                          ✓ {reps} lançamentos: {fmtDate(baseDate)} → {fmtDate(fimDate)}
+                        </p>
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
               <button type="submit" disabled={saving} style={{
@@ -368,7 +416,7 @@ export default function Lancamentos() {
                 border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'600',
                 cursor: saving ? 'not-allowed' : 'pointer', fontFamily:"'Inter', sans-serif",
               }}>
-                {saving ? 'Salvando...' : editId ? 'Atualizar' : 'Salvar lançamento'}
+                {saving ? 'Salvando...' : editId ? 'Atualizar' : form.recorrente ? `Criar ${form.repeticoes || 1} lançamentos` : 'Salvar lançamento'}
               </button>
             </form>
           </div>
