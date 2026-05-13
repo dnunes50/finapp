@@ -35,11 +35,13 @@ export default function Recorrentes() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     await supabase.from('cp_recorrentes').insert({
-      ...form, user_id: user.id,
+      user_id: user.id,
+      descricao: form.descricao,
+      tipo: form.tipo,
       valor: parseFloat(form.valor.replace(',','.')),
       dia_vencimento: parseInt(form.dia_vencimento),
-      categoria_id: form.categoria_id||null,
-      conta_id: form.conta_id||null,
+      categoria_id: form.categoria_id || null,
+      conta_id: form.conta_id || null,
     })
     setModal(false)
     setSaving(false)
