@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import AppLayout from '../dashboard/AppLayout'
 
-const MESES_OPT = Array.from({length:24},(_,i)=>{
-  const d = new Date(); d.setMonth(d.getMonth()-i)
+const MESES_LABEL = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
+const MESES_OPT = Array.from({length:36},(_,i)=>{
+  const d = new Date(); d.setMonth(d.getMonth() - 12 + i)
   const m = String(d.getMonth()+1).padStart(2,'0')
   const a = String(d.getFullYear()).slice(-2)
-  return { value:`${m}/${a}`, label:`${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][d.getMonth()]}/${d.getFullYear()}` }
-})
+  return { value:`${m}/${a}`, label:`${MESES_LABEL[d.getMonth()]}/${d.getFullYear()}` }
+}).reverse()
 
 function getMesAtual() {
   const d = new Date()
@@ -222,18 +223,35 @@ export default function Lancamentos() {
       <div style={{ padding:'24px', maxWidth:'1100px', fontFamily:"'Inter', sans-serif" }}>
 
         {/* Header */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'20px' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'16px' }}>
           <div>
             <h1 style={{ fontSize:'20px', fontWeight:'600', color: C.text }}>Lançamentos</h1>
-            <p style={{ fontSize:'13px', color: C.muted }}>
-              {filtrados.length} registros · +R$ {fmt(receitas)} · -R$ {fmt(despesas)} · Saldo: R$ {fmt(saldo)}
-            </p>
+            <p style={{ fontSize:'13px', color: C.muted }}>{filtrados.length} registros</p>
           </div>
           <button onClick={()=>setModal(true)} style={{
             padding:'9px 18px', background: C.green, color:'#0F172A',
             border:'none', borderRadius:'8px', fontSize:'13px', fontWeight:'600',
             cursor:'pointer', fontFamily:"'Inter', sans-serif",
           }}>+ Novo</button>
+        </div>
+
+        {/* KPI Cards */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px', marginBottom:'16px' }}>
+          <div style={{ background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.2)', borderRadius:'12px', padding:'14px', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, width:'3px', height:'100%', background: C.green, borderRadius:'12px 0 0 12px' }}/>
+            <div style={{ fontSize:'11px', color: C.muted, marginBottom:'4px', paddingLeft:'4px' }}>Receitas</div>
+            <div style={{ fontSize:'20px', fontWeight:'700', color: C.green, paddingLeft:'4px' }}>+R$ {fmt(receitas)}</div>
+          </div>
+          <div style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:'12px', padding:'14px', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, width:'3px', height:'100%', background: C.red, borderRadius:'12px 0 0 12px' }}/>
+            <div style={{ fontSize:'11px', color: C.muted, marginBottom:'4px', paddingLeft:'4px' }}>Despesas</div>
+            <div style={{ fontSize:'20px', fontWeight:'700', color: C.red, paddingLeft:'4px' }}>-R$ {fmt(despesas)}</div>
+          </div>
+          <div style={{ background: saldo>=0?'rgba(34,197,94,0.1)':'rgba(239,68,68,0.1)', border:`1px solid ${saldo>=0?'rgba(34,197,94,0.2)':'rgba(239,68,68,0.2)'}`, borderRadius:'12px', padding:'14px', position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', top:0, left:0, width:'3px', height:'100%', background: saldo>=0?C.green:C.red, borderRadius:'12px 0 0 12px' }}/>
+            <div style={{ fontSize:'11px', color: C.muted, marginBottom:'4px', paddingLeft:'4px' }}>Saldo</div>
+            <div style={{ fontSize:'20px', fontWeight:'700', color: saldo>=0?C.green:C.red, paddingLeft:'4px' }}>{saldo>=0?'+':'-'}R$ {fmt(Math.abs(saldo))}</div>
+          </div>
         </div>
 
         {/* Filtros */}
