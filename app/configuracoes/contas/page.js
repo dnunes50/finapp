@@ -82,7 +82,7 @@ export default function ConfigContas() {
                   {c.nome?.substring(0,2).toUpperCase()}
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#222' }}>{c.nome}</div>
+                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#F1F5F9' }}>{c.nome}</div>
                   <div style={{ fontSize:'11px', color:'#475569' }}>{tipoLabel[c.tipo]||c.tipo} · Saldo inicial: R$ {fmt(c.saldo_inicial)}</div>
                 </div>
                 <div style={{ textAlign:'right' }}>
@@ -114,13 +114,13 @@ export default function ConfigContas() {
                 <div key={f.key} style={{ marginBottom:'12px' }}>
                   <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>{f.label}</label>
                   <input type={f.type} value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})} placeholder={f.placeholder} required={f.required}
-                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }} />
+                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9' }} />
                 </div>
               ))}
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Tipo</label>
                 <select value={form.tipo} onChange={e=>setForm({...form,tipo:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="corrente">Corrente</option>
                   <option value="poupanca">Poupança</option>
                   <option value="investimento">Investimento</option>
@@ -131,7 +131,7 @@ export default function ConfigContas() {
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Banco</label>
                 <select value={form.banco} onChange={e=>setForm({...form,banco:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="">Selecionar</option>
                   {BANCOS.map(b=><option key={b} value={b}>{b}</option>)}
                 </select>

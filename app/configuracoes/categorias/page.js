@@ -95,12 +95,12 @@ export default function ConfigCategorias() {
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Nome</label>
                 <input value={form.nome} onChange={e=>setForm({...form,nome:e.target.value})} placeholder="Ex: Academia" required
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }} />
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9' }} />
               </div>
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Tipo</label>
                 <select value={form.tipo} onChange={e=>setForm({...form,tipo:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="despesa">Despesa</option>
                   <option value="receita">Receita</option>
                 </select>

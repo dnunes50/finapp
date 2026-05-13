@@ -106,20 +106,20 @@ export default function ConfigCartoes() {
                 <div key={f.key} style={{ marginBottom:'12px' }}>
                   <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>{f.label}</label>
                   <input type={f.type} value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})} placeholder={f.placeholder} required={f.required}
-                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }} />
+                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9' }} />
                 </div>
               ))}
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Bandeira</label>
                 <select value={form.bandeira} onChange={e=>setForm({...form,bandeira:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   {['visa','mastercard','elo','amex','hipercard','outro'].map(b=><option key={b} value={b}>{b.charAt(0).toUpperCase()+b.slice(1)}</option>)}
                 </select>
               </div>
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Conta de débito</label>
                 <select value={form.conta_debito_id} onChange={e=>setForm({...form,conta_debito_id:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="">Selecionar</option>
                   {contas.map(c=><option key={c.id} value={c.id}>{c.nome}</option>)}
                 </select>

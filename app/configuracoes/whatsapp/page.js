@@ -52,7 +52,7 @@ export default function ConfigWhatsApp() {
             <input
               type="tel" value={whatsapp} onChange={e=>setWhatsapp(e.target.value)}
               placeholder="(11) 99999-9999" required
-              style={{ flex:1, padding:'10px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }}
+              style={{ flex:1, padding:'10px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9' }}
             />
             <button type="submit" disabled={saving} style={{ padding:'10px 18px', background:'#22C55E', color:'#FFF', border:'none', borderRadius:'8px', fontSize:'12px', fontWeight:'500', cursor:'pointer' }}>
               {saving?'Salvando...':'Salvar'}

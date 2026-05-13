@@ -166,10 +166,10 @@ export default function Dashboard() {
           {lancRecentes.length === 0 && <p style={{ fontSize:'12px', color: C.muted, textAlign:'center', padding:'20px 0' }}>Nenhum lançamento neste mês</p>}
           {lancRecentes.map(l => (
             <div key={l.id} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'9px 0', borderBottom:`1px solid ${C.border}` }}>
-              <div style={{ width:'7px', height:'7px', borderRadius:'50%', background: l.categorias?.cor||'#64748B', flexShrink:0 }}/>
+              <div style={{ width:'7px', height:'7px', borderRadius:'50%', background: l.cp_categorias?.cor||'#64748B', flexShrink:0 }}/>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:'13px', color: C.text, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{l.descricao}</div>
-                <div style={{ fontSize:'11px', color: C.muted }}>{l.categorias?.nome||'—'} · {l.contas?.nome||'—'} · {new Date(l.data+'T12:00:00').toLocaleDateString('pt-BR')}</div>
+                <div style={{ fontSize:'11px', color: C.muted }}>{l.cp_categorias?.nome||'—'} · {l.cp_contas?.nome||'—'} · {new Date(l.data+'T12:00:00').toLocaleDateString('pt-BR')}</div>
               </div>
               <div style={{ flexShrink:0, display:'flex', alignItems:'center', gap:'6px' }}>
                 {l.status === 'a_realizar' && (

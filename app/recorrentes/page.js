@@ -94,10 +94,10 @@ export default function Recorrentes() {
             ) :
             recorrentes.map((r,i) => (
               <div key={r.id} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 0', borderBottom: i<recorrentes.length-1?'1px solid #F0F0EE':'none', opacity: r.ativo?1:0.5 }}>
-                <span style={{ fontSize:'16px' }}>{r.categorias?.icone||'📦'}</span>
+                <span style={{ fontSize:'16px' }}>{r.cp_categorias?.icone||'📦'}</span>
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#222' }}>{r.descricao}</div>
-                  <div style={{ fontSize:'10px', color:'#475569' }}>Todo dia {r.dia_vencimento} · {r.contas?.nome||'—'} · {r.categorias?.nome||'—'}</div>
+                  <div style={{ fontSize:'13px', fontWeight:'500', color:'#F1F5F9' }}>{r.descricao}</div>
+                  <div style={{ fontSize:'10px', color:'#475569' }}>Todo dia {r.dia_vencimento} · {r.cp_contas?.nome||'—'} · {r.cp_categorias?.nome||'—'}</div>
                 </div>
                 <span style={{ fontSize:'13px', fontWeight:'500', color: r.tipo==='receita'?'#22C55E':'#1A1A18', flexShrink:0 }}>
                   {r.tipo==='receita'?'+':'-'}R$ {fmt(r.valor)}
@@ -140,14 +140,14 @@ export default function Recorrentes() {
                   <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>{f.label}</label>
                   <input type={f.type} value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})}
                     placeholder={f.placeholder} required={f.required} min={f.key==='dia_vencimento'?1:undefined} max={f.key==='dia_vencimento'?31:undefined}
-                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }}
+                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9' }}
                   />
                 </div>
               ))}
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Categoria</label>
                 <select value={form.categoria_id} onChange={e=>setForm({...form,categoria_id:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="">Selecionar</option>
                   {categorias.filter(c=>c.tipo===form.tipo).map(c=><option key={c.id} value={c.id}>{c.icone} {c.nome}</option>)}
                 </select>
@@ -155,7 +155,7 @@ export default function Recorrentes() {
               <div style={{ marginBottom:'16px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Conta</label>
                 <select value={form.conta_id} onChange={e=>setForm({...form,conta_id:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="">Selecionar</option>
                   {contas.map(c=><option key={c.id} value={c.id}>{c.nome}</option>)}
                 </select>

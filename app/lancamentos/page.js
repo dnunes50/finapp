@@ -34,13 +34,14 @@ export default function Lancamentos() {
   async function load() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
-    const q = supabase.from('cp_lanc')
+    let query = supabase.from('cp_lanc')
       .select('*, cp_categorias(nome,cor,icone), cp_contas(nome)')
       .eq('user_id', user.id).eq('mes', mes)
       .order('data', { ascending: false })
-    if (filtro !== 'todos') q.eq('tipo', filtro === 'pendentes' ? undefined : filtro)
-    if (filtro === 'pendentes') q.eq('status', 'a_realizar')
-    const { data } = await q
+    if (filtro === 'receitas') query = query.eq('tipo', 'receita')
+    else if (filtro === 'despesas') query = query.eq('tipo', 'despesa')
+    else if (filtro === 'pendentes') query = query.eq('status', 'a_realizar')
+    const { data } = await query
     setLanc(data || [])
 
     const { data: cats } = await supabase.from('cp_categorias').select('*').or(`user_id.eq.${user.id},user_id.is.null`).order('nome')
@@ -149,11 +150,11 @@ export default function Lancamentos() {
               </div>
               <div style={{ background:'#1E293B', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'12px', overflow:'hidden' }}>
                 {grupos[data].map((l,i) => (
-                  <div key={l.id} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 14px', borderBottom: i<grupos[data].length-1 ? '1px solid #F0F0EE' : 'none' }}>
-                    <div style={{ width:'7px', height:'7px', borderRadius:'50%', background:l.categorias?.cor||'#888', flexShrink:0 }}></div>
+                  <div key={l.id} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 14px', borderBottom: i<grupos[data].length-1 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+                    <div style={{ width:'7px', height:'7px', borderRadius:'50%', background:l.cp_categorias?.cor||'#888', flexShrink:0 }}></div>
                     <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:'13px', color:'#222' }}>{l.descricao}</div>
-                      <div style={{ fontSize:'10px', color:'#475569' }}>{l.categorias?.nome||'—'} · {l.contas?.nome||'—'} · {l.origem}</div>
+                      <div style={{ fontSize:'13px', color:'#F1F5F9' }}>{l.descricao}</div>
+                      <div style={{ fontSize:'10px', color:'#475569' }}>{l.cp_categorias?.nome||'—'} · {l.cp_contas?.nome||'—'} · {l.origem}</div>
                     </div>
                     {l.status==='a_realizar' && (
                       <button onClick={()=>marcarRealizado(l.id)} style={{ fontSize:'9px', padding:'2px 8px', background:'#FAEEDA', color:'#633806', border:'none', borderRadius:'20px', cursor:'pointer' }}>
@@ -191,9 +192,9 @@ export default function Lancamentos() {
                 {['despesa','receita'].map(t=>(
                   <button type="button" key={t} onClick={()=>setForm({...form,tipo:t})} style={{
                     flex:1, padding:'8px', borderRadius:'8px', border:'1px solid',
-                    background: form.tipo===t ? (t==='receita'?'#E1F5EE':'#FCEBEB') : '#FFF',
+                    background: form.tipo===t ? (t==='receita'?'rgba(34,197,94,0.15)':'rgba(239,68,68,0.15)') : 'rgba(255,255,255,0.05)',
                     color: form.tipo===t ? (t==='receita'?'#22C55E':'#EF4444') : '#666',
-                    borderColor: form.tipo===t ? (t==='receita'?'#9FE1CB':'#F7C1C1') : '#E8E8E5',
+                    borderColor: form.tipo===t ? (t==='receita'?'#22C55E':'#EF4444') : 'rgba(255,255,255,0.1)',
                     cursor:'pointer', fontSize:'13px', fontWeight:'500',
                   }}>{t.charAt(0).toUpperCase()+t.slice(1)}</button>
                 ))}
@@ -207,14 +208,14 @@ export default function Lancamentos() {
                   <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>{f.label}</label>
                   <input type={f.type} value={form[f.key]} onChange={e=>setForm({...form,[f.key]:e.target.value})}
                     placeholder={f.placeholder} required={f.required}
-                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none' }}
+                    style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', outline:'none', background:'#1E293B', color:'#F1F5F9' }}
                   />
                 </div>
               ))}
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Categoria</label>
                 <select value={form.categoria_id} onChange={e=>setForm({...form,categoria_id:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="">Selecionar</option>
                   {categorias.filter(c=>c.tipo===form.tipo).map(c=><option key={c.id} value={c.id}>{c.icone} {c.nome}</option>)}
                 </select>
@@ -222,7 +223,7 @@ export default function Lancamentos() {
               <div style={{ marginBottom:'12px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Conta</label>
                 <select value={form.conta_id} onChange={e=>setForm({...form,conta_id:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="">Selecionar</option>
                   {contas.map(c=><option key={c.id} value={c.id}>{c.nome}</option>)}
                 </select>
@@ -230,7 +231,7 @@ export default function Lancamentos() {
               <div style={{ marginBottom:'16px' }}>
                 <label style={{ display:'block', fontSize:'11px', color:'#64748B', marginBottom:'4px' }}>Status</label>
                 <select value={form.status} onChange={e=>setForm({...form,status:e.target.value})}
-                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B' }}>
+                  style={{ width:'100%', padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'8px', fontSize:'13px', background:'#1E293B', color:'#F1F5F9' }}>
                   <option value="realizado">Realizado</option>
                   <option value="a_realizar">A realizar</option>
                 </select>
